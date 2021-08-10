@@ -1,4 +1,4 @@
-module dwightaspencer.com/hubspotcli
+module github.com/denzuko/hubspotcli
 
 go 1.13
 
