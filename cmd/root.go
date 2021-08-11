@@ -2,15 +2,15 @@ package cmd
 
 import (
     "os"
-    "log"
 
+    log "github.com/sirupsen/logrus"
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
-
+)
 
 var (
     cfgFile     string
-    rootCmd = &cobra.Command{Use: "app"}
+    rootCmd = &cobra.Command{Use: "hscli"}
 )
 
 func Execute() error {
@@ -19,9 +19,7 @@ func Execute() error {
 
 func init() {
     cobra.OnInitialize(initConfig)
-    rootCmd.PersistentFlags().StringVar(&cfgFlag, "config", "c", "config file [default: $HOME/.config/hubspotcli/config.json]")
-    rootCmd.AddCommand(addCmd)
-    rootCmd.AddCommand(initCmd)
+    rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")
 }
 
 func initConfig() {
@@ -31,14 +29,20 @@ func initConfig() {
         home, err := os.UserHomeDir()
         cobra.CheckErr(err)
 
-        viper.AddConfigPath(home),
+        viper.AddConfigPath(home)
         viper.SetConfigType("json")
-        viper.SetConfigName(".config/hubspotcli/config")
+        viper.SetConfigName(".config/hubspotcli/config.json")
     }
 
     viper.AutomaticEnv()
-    if err := viperReadInConfig(); err == nil {
-        log.Successf("Using config file: %s", viper.ConfigFileUsed())
+
+    log.SetFormatter(&log.TextFormatter{
+        DisableColors: true,
+        FullTimestamp: true,
+    })
+
+    if err := viper.ReadInConfig(); err == nil {
+        log.Printf("Using config file: %s", viper.ConfigFileUsed())
     } else {
         log.Fatalf("Error Reading config: %s", err)
     }
